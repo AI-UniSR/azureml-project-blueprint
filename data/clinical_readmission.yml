@@ -1,8 +1,6 @@
 $schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
 type: uri_file
 name: blueprint-example-clinical-readmission
-version: "1"
-description: >
-  Synthetic clinical dataset for 30-day hospital readmission prediction.
-  500 patients, 12 features (demographics, vitals, labs, comorbidities), binary target.
+version: 1
+description: Synthetic clinical dataset for 30-day hospital readmission prediction. 500 patients, 12 features (demographics, vitals, labs, comorbidities), binary target.
 path: ./clinical_readmission.csv

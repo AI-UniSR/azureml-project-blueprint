@@ -10,11 +10,31 @@ End-to-end Azure Machine Learning reference project demonstrating **Azure ML CLI
 
 The repository follows a clear separation between:
 
-- **Pipelines (orchestration layer)** — a multi-step pipeline wired via YAML  
-- **Components (reusable computational steps)** — each in its own folder with YAML + Python  
-- **Assets and environments (infrastructure layer)** — data and environment definitions  
+- **Assets and environments (infrastructure layer)** — data and environment definitions
+- **Components (reusable computational steps)** — each in its own folder with YAML + Python
+- **Pipelines (orchestration layer)** — a multi-step pipeline wired via YAML
 
 A synthetic clinical dataset is included to demonstrate preprocessing, training, MLflow tracking, and model registration in a reproducible way.
+
+---
+
+## Compute Concepts in Azure ML
+
+Azure ML provides two distinct types of compute, serving different purposes:
+
+### Compute Instance — your personal development machine
+A Compute Instance is a **managed cloud VM assigned to a single user**. You access it directly from **Azure ML Studio → Compute → Compute Instances**, where each team member has their own instance. From there you can open it with any of the available interfaces:
+
+> JupyterLab · Jupyter · VS Code (Web) · VS Code (Desktop) · Terminal · Notebook (native Azure UI)
+
+**For this guide we recommend VS Code** (Web or Desktop). The Compute Instance is used here purely as an **orchestrator**: you edit files and invoke the Azure ML CLI (`az ml job create …`) from its terminal. The actual training code never runs on it.
+
+All Compute Instances in the same workspace share a **common filesystem** (`~/cloudfiles/`), so files written by one user are immediately visible to all others. This is where the project repository lives.
+
+### Azure ML Compute Cluster ← *this is where the code runs*
+A Compute Cluster is an **auto-scaling pool of VMs** managed entirely by Azure ML. When you submit a job it spins up the required nodes, runs the containerised workload, and scales back to zero when idle (no idle cost). Each job runs in a fresh environment defined by its `environment` YAML — no manual setup required.
+
+When you see `compute: azureml:<YOUR-COMPUTE-CLUSTER>` in any YAML in this repo, that string references a Compute Cluster registered in your workspace. **You must set this field before submitting any job.**
 
 ---
 
@@ -42,8 +62,9 @@ azureml-project-blueprint/
 │   └── clinical_readmission.yml        # Data asset YAML (uri_file)
 │
 ├── environments/
-│   ├── conda_dependencies.yaml         # Conda env spec (scikit-learn, MLflow)
-│   └── environment.yml                 # Azure ML environment YAML
+│   ├── Dockerfile                      # Base Docker image definition
+│   ├── environment.yaml                # Conda env spec (scikit-learn, MLflow)
+│   └── requirements.txt                # Pip dependencies
 │
 ├── jobs/
 │   ├── train_job.py                    # Standalone training script
@@ -72,9 +93,18 @@ azureml-project-blueprint/
 
 ## Prerequisites
 
-- Azure CLI with the `ml` extension (`az extension add -n ml`)
-- An Azure ML workspace
-- A compute cluster — **must be set** in every YAML (`azureml:<YOUR-COMPUTE-CLUSTER>`)
+### Azure setup
+- An **Azure ML workspace** with access granted to your account
+- A **Compute Instance** assigned to you (visible in Studio → Compute → Compute Instances)
+- A **Compute Cluster** registered in the workspace — set its name in every YAML as `azureml:<YOUR-COMPUTE-CLUSTER>`
+- **Azure CLI** with the `ml` extension installed on your Compute Instance (`az extension add -n ml`)
+
+### Required skills
+- **Git** — clone, commit, push, pull, branching
+- **Python** — reading and writing scripts that use `argparse` for inputs/outputs
+- **MLflow** — `log_param`, `log_metric`, `log_artifact` basics
+- **YAML** — reading and editing structured configuration files
+- **Azure ML CLI v2** — `az ml job create`, `az ml environment create`, `az ml data create`
 
 ---
 
