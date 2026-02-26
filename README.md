@@ -115,14 +115,6 @@ az account show --output table
 az account set --subscription "<subscription-id>"
 ```
 
-Set workspace and resource group **defaults** to avoid repeating them on every command:
-
-```bash
-az configure --defaults group=<resource-group> workspace=<workspace-name>
-```
-
-From this point on, all `az ml ...` commands will automatically use the configured group and workspace.
-
 Verify that the `ml` extension is installed:
 
 ```bash
