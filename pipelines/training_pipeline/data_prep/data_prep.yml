@@ -1,0 +1,34 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+name: data_prep_component
+display_name: "Data Preparation – Stratified Train/Test Split"
+description: >
+  Load raw clinical CSV, perform basic cleaning, and create a stratified
+  70/30 train/test split. Outputs are uri_folder data assets.
+version: "1"
+
+inputs:
+  raw_data:
+    type: uri_file
+    description: "Raw clinical readmission CSV file."
+  test_size:
+    type: number
+    default: 0.3
+    description: "Fraction of data reserved for the test set."
+
+outputs:
+  training_data:
+    type: uri_folder
+    description: "Folder containing train.csv"
+  test_data:
+    type: uri_folder
+    description: "Folder containing test.csv"
+
+code: ./
+environment: azureml:blueprint-example-sklearn-env:1
+command: >
+  python data_prep.py
+  --raw_data ${{inputs.raw_data}}
+  --training_data ${{outputs.training_data}}
+  --test_data ${{outputs.test_data}}
+  --test_size ${{inputs.test_size}}

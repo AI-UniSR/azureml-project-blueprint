@@ -1,0 +1,57 @@
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+display_name: Blueprint Training Pipeline – Readmission Prediction
+description: >
+  End-to-end pipeline: data preparation with stratified train/test split,
+  model training with cross-validation, test-set evaluation,
+  and model registration in Azure ML Model Registry.
+experiment_name: blueprint_training_pipeline
+
+settings:
+  # TODO: replace with your compute cluster name (e.g. azureml:my-cpu-cluster)
+  default_compute: azureml:<YOUR-COMPUTE-CLUSTER>
+
+# === Inputs ===
+inputs:
+  raw_data:
+    type: uri_file
+    path: azureml:blueprint-example-clinical-readmission:1
+  test_size: 0.3
+  cv_n_splits: 5
+  model_name: "blueprint-example-readmission-model"
+
+# === Jobs (components) ===
+jobs:
+
+  # Step 1: Data preparation with stratified train/test split
+  data_prep_step:
+    type: command
+    component: ./data_prep/data_prep.yml
+    inputs:
+      raw_data: ${{parent.inputs.raw_data}}
+      test_size: ${{parent.inputs.test_size}}
+
+  # Step 2: Train model (depends on data_prep_step)
+  train_step:
+    type: command
+    component: ./train/train.yml
+    inputs:
+      training_data: ${{parent.jobs.data_prep_step.outputs.training_data}}
+      cv_n_splits: ${{parent.inputs.cv_n_splits}}
+
+  # Step 3: Evaluate on test set (depends on data_prep_step + train_step)
+  evaluate_step:
+    type: command
+    component: ./evaluate/evaluate.yml
+    inputs:
+      test_data: ${{parent.jobs.data_prep_step.outputs.test_data}}
+      trained_model: ${{parent.jobs.train_step.outputs.trained_model}}
+
+  # Step 4: Register model in Azure ML Model Registry
+  register_model_step:
+    type: command
+    component: ./register_model/register_model.yml
+    inputs:
+      trained_model: ${{parent.jobs.train_step.outputs.trained_model}}
+      evaluation_output: ${{parent.jobs.evaluate_step.outputs.evaluation_output}}
+      model_name: ${{parent.inputs.model_name}}

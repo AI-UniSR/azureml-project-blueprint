@@ -1,0 +1,8 @@
+$schema: https://azuremlschemas.azureedge.net/latest/environment.schema.json
+name: blueprint-example-sklearn-env
+version: "1"
+image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
+conda_file: conda_dependencies.yaml
+description: >
+  EXAMPLE environment for the azureml-project-blueprint.
+  Minimal scikit-learn + MLflow setup. Rename before using in production.

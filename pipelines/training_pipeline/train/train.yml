@@ -1,0 +1,30 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+name: train_component
+display_name: "Train Logistic Regression"
+description: >
+  Train a Logistic Regression classifier with stratified cross-validation.
+  Logs metrics and model to MLflow.
+version: "1"
+
+inputs:
+  training_data:
+    type: uri_folder
+    description: "Folder containing train.csv (output of data_prep)."
+  cv_n_splits:
+    type: integer
+    default: 5
+    description: "Number of CV folds."
+
+outputs:
+  trained_model:
+    type: uri_folder
+    description: "Folder with model.pkl and feature_columns.json."
+
+code: ./
+environment: azureml:blueprint-example-sklearn-env:1
+command: >
+  python train.py
+  --training_data ${{inputs.training_data}}
+  --trained_model ${{outputs.trained_model}}
+  --cv_n_splits ${{inputs.cv_n_splits}}
