@@ -78,153 +78,153 @@ azureml-project-blueprint/
 
 ---
 
-## Workflow – Come lavorare sul progetto (standard di team)
+## Workflow – Recommended Setup (Team Standard)
 
-Di seguito il flusso operativo consigliato, dalla connessione alla VM fino all'esecuzione di job e pipeline.
-
----
-
-### Step 1 — Collegarsi alla Compute Instance con VS Code
-
-1. Aprire **VS Code** in locale.
-2. Installare l'estensione **Azure Machine Learning** (se non già presente).
-3. Dalla palette comandi (`Ctrl+Shift+P`) selezionare **Azure ML: Connect to Compute Instance** oppure, in alternativa, usare la connessione **Remote - SSH**:
-   - Dal portale Azure ML Studio → **Compute** → **Compute instances** → copiare il comando SSH o selezionare *Connect with VS Code*.
-   - VS Code aprirà una sessione remota sulla VM; il file system montato (`~/cloudfiles/code/Users/<username>/`) è condiviso e persistente.
-4. Verificare che il terminale integrato di VS Code punti alla compute instance (il prompt mostra `azureuser@<vm-name>`).
-
-> **Tip:** Tutte le modifiche al codice fatte via VS Code sono salvate direttamente sul file share di Azure ML e visibili anche da altri notebook o terminali sulla stessa workspace.
+The steps below describe the recommended workflow, from connecting to the VM all the way to running jobs and pipelines.
 
 ---
 
-### Step 2 — Autenticazione con Azure CLI
+### Step 1 — Connect to the Compute Instance with VS Code
 
-Aprire il terminale integrato in VS Code ed eseguire:
+1. Open **VS Code** locally.
+2. Install the **Azure Machine Learning** extension (if not already present).
+3. From the command palette (`Ctrl+Shift+P`) select **Azure ML: Connect to Compute Instance**, or alternatively use **Remote - SSH**:
+   - In Azure ML Studio → **Compute** → **Compute instances** → copy the SSH command or click *Connect with VS Code*.
+   - VS Code will open a remote session on the VM; the mounted file system (`~/cloudfiles/code/Users/<username>/`) is shared and persistent across sessions.
+4. Verify that the VS Code integrated terminal points to the compute instance (the prompt shows `azureuser@<vm-name>`).
+
+> **Tip:** All code changes made via VS Code are saved directly on the Azure ML file share and are immediately visible from other notebooks or terminals in the same workspace.
+
+---
+
+### Step 2 — Authenticate with Azure CLI
+
+Open the integrated terminal in VS Code and run:
 
 ```bash
-# Login interattivo (apre il browser o usa il device code)
+# Interactive login (opens the browser or uses device code flow)
 az login
 
-# Verificare la sottoscrizione attiva
+# Check the active subscription
 az account show --output table
 
-# Se necessario, selezionare la sottoscrizione corretta
+# If needed, select the correct subscription
 az account set --subscription "<subscription-id>"
 ```
 
-Impostare i **default** di workspace e resource group per evitare di ripeterli ad ogni comando:
+Set workspace and resource group **defaults** to avoid repeating them on every command:
 
 ```bash
 az configure --defaults group=<resource-group> workspace=<workspace-name>
 ```
 
-Da questo momento in poi tutti i comandi `az ml ...` useranno automaticamente il gruppo e la workspace configurati.
+From this point on, all `az ml ...` commands will automatically use the configured group and workspace.
 
-Verificare che l'estensione `ml` sia installata:
+Verify that the `ml` extension is installed:
 
 ```bash
 az extension show -n ml --query version -o tsv
-# Se mancante:
+# If missing:
 az extension add -n ml
 ```
 
 ---
 
-### Step 3 — Esecuzione: Job singolo o Pipeline
+### Step 3 — Run a Standalone Job or a Pipeline
 
-#### Opzione A — Job singolo (command job)
+#### Option A — Standalone command job
 
-Il job singolo è utile per test rapidi o esecuzioni one-shot. Tutto è definito in un unico YAML che specifica input, output, environment e comando.
+A standalone job is useful for quick tests or one-off runs. Everything is defined in a single YAML that specifies inputs, outputs, environment, and command.
 
 ```bash
-# 1. Registrare l'environment (solo la prima volta o quando cambia)
+# 1. Register the environment (first time only, or when it changes)
 az ml environment create --file environments/environment.yml
 
-# 2. Registrare il data asset (solo la prima volta o per nuove versioni)
+# 2. Register the data asset (first time only, or for new versions)
 az ml data create --file data/clinical_readmission.yml
 
-# 3. Lanciare il job
+# 3. Submit the job
 az ml job create --file jobs/train_job.yml
 ```
 
-Monitorare l'esecuzione:
+Monitor execution:
 
 ```bash
-# Dalla CLI
+# Check status from the CLI
 az ml job show --name <job-name> --query status -o tsv
 
-# Oppure dallo stream dei log in tempo reale
+# Stream logs in real time
 az ml job stream --name <job-name>
 ```
 
-Il job apparirà anche in **Azure ML Studio → Experiments → blueprint_standalone_job**.
+The job also appears in **Azure ML Studio → Experiments → blueprint_standalone_job**.
 
 ---
 
-#### Opzione B — Pipeline (consigliato per workflow strutturati)
+#### Option B — Pipeline (recommended for structured workflows)
 
-La pipeline suddivide il lavoro in **componenti riutilizzabili**, ciascuno nella propria cartella con codice e YAML separati. Questo abilita il **caching automatico**: Azure ML esegue solo i componenti i cui input o codice sono cambiati.
+The pipeline splits the work into **reusable components**, each in its own folder with separate code and YAML. This enables **automatic caching**: Azure ML only re-runs components whose inputs or code have changed.
 
 ```bash
-# 1. Registrare environment e data (se non già fatto)
+# 1. Register environment and data (if not already done)
 az ml environment create --file environments/environment.yml
 az ml data create --file data/clinical_readmission.yml
 
-# 2. Lanciare la pipeline
+# 2. Submit the pipeline
 az ml job create --file pipelines/training_pipeline/training_pipeline.yml
 ```
 
-La pipeline esegue 4 step in sequenza:
+The pipeline runs 4 steps in sequence:
 
-| Step | Componente | Cosa fa |
-|------|-----------|---------|
-| 1 | `data_prep` | Split stratificato train/test (70/30) |
-| 2 | `train` | Logistic Regression con cross-validation |
-| 3 | `evaluate` | Metriche sul test set (accuracy, F1, ROC-AUC) |
-| 4 | `register_model` | Registra il modello nel Model Registry |
+| Step | Component | What it does |
+|------|-----------|--------------|
+| 1 | `data_prep` | Stratified train/test split (70/30) |
+| 2 | `train` | Logistic Regression with cross-validation |
+| 3 | `evaluate` | Test-set metrics (accuracy, F1, ROC-AUC) |
+| 4 | `register_model` | Registers the model in the Model Registry |
 
-Monitorare la pipeline:
+Monitor the pipeline:
 
 ```bash
-# Status della pipeline
+# Pipeline status
 az ml job show --name <pipeline-job-name> --query status -o tsv
 
-# Log di un singolo step (child job)
+# Stream logs (includes child step logs)
 az ml job stream --name <pipeline-job-name>
 ```
 
-Dalla UI è possibile visualizzare il grafo della pipeline in **Azure ML Studio → Jobs → blueprint_training_pipeline**.
+The pipeline graph is visible in **Azure ML Studio → Jobs → blueprint_training_pipeline**.
 
 ---
 
-### Riepilogo comandi frequenti
+### Common Commands Reference
 
-| Azione | Comando |
+| Action | Command |
 |--------|---------|
 | Login | `az login` |
-| Impostare default | `az configure --defaults group=<rg> workspace=<ws>` |
-| Creare environment | `az ml environment create --file environments/environment.yml` |
-| Registrare data asset | `az ml data create --file data/clinical_readmission.yml` |
-| Lanciare job singolo | `az ml job create --file jobs/train_job.yml` |
-| Lanciare pipeline | `az ml job create --file pipelines/training_pipeline/training_pipeline.yml` |
-| Stato di un job | `az ml job show --name <name> --query status` |
-| Stream log | `az ml job stream --name <name>` |
-| Elenco modelli registrati | `az ml model list --query "[].{name:name, version:version}" -o table` |
+| Set defaults | `az configure --defaults group=<rg> workspace=<ws>` |
+| Create environment | `az ml environment create --file environments/environment.yml` |
+| Register data asset | `az ml data create --file data/clinical_readmission.yml` |
+| Run standalone job | `az ml job create --file jobs/train_job.yml` |
+| Run pipeline | `az ml job create --file pipelines/training_pipeline/training_pipeline.yml` |
+| Job status | `az ml job show --name <name> --query status` |
+| Stream logs | `az ml job stream --name <name>` |
+| List registered models | `az ml model list --query "[].{name:name, version:version}" -o table` |
 
 ---
 
-## Quick Start (sintesi rapida)
+## Quick Start
 
 ```bash
-# Autenticarsi e configurare i default
+# Authenticate and set defaults
 az login
-az configure --defaults group=<rg> workspace=<ws>
+az configure --defaults group=<resource-group> workspace=<workspace-name>
 
-# Setup una tantum
+# One-time setup
 az ml environment create --file environments/environment.yml
 az ml data create --file data/clinical_readmission.yml
 
-# Lanciare la pipeline
+# Run the pipeline
 az ml job create --file pipelines/training_pipeline/training_pipeline.yml
 ```
 
