@@ -86,18 +86,18 @@ The steps below describe the recommended workflow, from connecting to the VM all
 
 ### Step 1 — Connect to the Compute Instance with VS Code
 
-Go to Azure ML Studio → Compute → Compute instances.
+1. Go to **Azure ML Studio → Compute → Compute instances**.
+2. Select your compute instance.
+3. If it is stopped, click **Start**.
+4. In the **Applications** column:
+   - Click **VS Code (Web)**, or  
+   - Click the three dots `...` → **VS Code (Desktop)** if the desktop app is installed.
 
-Select your compute instance.
+VS Code opens automatically and connects to the remote compute instance.
 
-If it is stopped, click Start.
+The integrated terminal runs directly on the VM (`azureuser@<vm-name>`), and the working directory  
+`~/cloudfiles/code/Users/<username>/` is persistent and shared across sessions.
 
-In the Applications column, click VS Code (Web)
-(or click the three dots ... → VS Code (Desktop) if the desktop app is installed).
-
-VS Code opens already connected to the remote compute instance.
-
-The integrated terminal runs directly on the VM (azureuser@<vm-name>), and the working directory under ~/cloudfiles/code/Users/<username>/ is persistent and shared across sessions.
 ---
 
 ### Step 2 — Authenticate with Azure CLI
