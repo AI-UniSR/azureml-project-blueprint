@@ -2,18 +2,20 @@ $schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
 type: command
 display_name: Standalone Training Job – Logistic Regression
 description: >
-  Minimal example: reads the registered data asset, trains a Logistic Regression
-  with 5-fold CV, logs metrics and the model to MLflow.
+  Minimal example: reads the registered data asset, trains a Logistic Regression with 5-fold CV, logs metrics and the model to MLflow.
+
+
 experiment_name: blueprint_standalone_job
 # TODO: replace with your compute cluster name (e.g. azureml:my-cpu-cluster)
+#compute: azureml:<YOUR-COMPUTE-CLUSTER>
 compute: azureml:<YOUR-COMPUTE-CLUSTER>
 
-environment: azureml:blueprint-example-sklearn-env:1
+environment: azureml:blueprint-env:1
 
 inputs:
   input_data:
     type: uri_file
-    path: azureml:blueprint-example-clinical-readmission:1
+    path: azureml:blueprint-clinical-readmission:1
 
 outputs:
   output_model:
@@ -21,6 +23,5 @@ outputs:
 
 code: ./
 command: >
-  python train_job.py
-  --input_data ${{inputs.input_data}}
-  --output_model ${{outputs.output_model}}
+  python train_job.py --input_data ${{inputs.input_data}} --output_model ${{outputs.output_model}}
+

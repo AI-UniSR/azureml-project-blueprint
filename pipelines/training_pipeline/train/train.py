@@ -10,7 +10,6 @@ import argparse
 import json
 import os
 
-import joblib
 import mlflow
 import numpy as np
 import pandas as pd
@@ -65,7 +64,10 @@ def main():
 
     # ---- Save to output uri_folder -----------------------------------------
     os.makedirs(args.trained_model, exist_ok=True)
-    joblib.dump(pipeline, os.path.join(args.trained_model, "model.pkl"))
+
+    # Save as MLflow model format so register_model can use mlflow.register_model
+    mlflow_model_path = os.path.join(args.trained_model, "mlflow_model")
+    mlflow.sklearn.save_model(pipeline, path=mlflow_model_path)
 
     # Save feature list for downstream components
     with open(os.path.join(args.trained_model, "feature_columns.json"), "w") as f:

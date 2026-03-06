@@ -10,7 +10,6 @@ import argparse
 import json
 import os
 
-import joblib
 import mlflow
 import numpy as np
 import pandas as pd
@@ -32,7 +31,8 @@ def main():
     args = parser.parse_args()
 
     # ---- Load model & data -------------------------------------------------
-    model = joblib.load(os.path.join(args.trained_model, "model.pkl"))
+    mlflow_model_path = os.path.join(args.trained_model, "mlflow_model")
+    model = mlflow.sklearn.load_model(mlflow_model_path)
     df = pd.read_csv(os.path.join(args.test_data, "test.csv"))
 
     target_col = "readmitted"
