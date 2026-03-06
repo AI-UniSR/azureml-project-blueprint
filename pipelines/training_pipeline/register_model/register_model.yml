@@ -4,6 +4,8 @@ name: register_model_component
 display_name: "Register Model in Azure ML Registry"
 description: >
   Register the trained model in the Azure ML Model Registry via MLflow.
+
+
 version: "1"
 
 inputs:
@@ -24,10 +26,7 @@ outputs:
     description: "Folder with registration_info.json."
 
 code: ./
-environment: azureml:blueprint-example-sklearn-env:1
+environment: azureml:blueprint-env:1
 command: >
-  python register_model.py
-  --trained_model ${{inputs.trained_model}}
-  --evaluation_output ${{inputs.evaluation_output}}
-  --model_name ${{inputs.model_name}}
-  --register_output ${{outputs.register_output}}
+  python register_model.py --trained_model ${{inputs.trained_model}} --evaluation_output ${{inputs.evaluation_output}} --model_name ${{inputs.model_name}} --register_output ${{outputs.register_output}}
+

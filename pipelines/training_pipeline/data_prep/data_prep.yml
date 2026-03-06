@@ -3,8 +3,9 @@ type: command
 name: data_prep_component
 display_name: "Data Preparation – Stratified Train/Test Split"
 description: >
-  Load raw clinical CSV, perform basic cleaning, and create a stratified
-  70/30 train/test split. Outputs are uri_folder data assets.
+  Load raw clinical CSV, perform basic cleaning, and create a stratified 70/30 train/test split. Outputs are uri_folder data assets.
+
+
 version: "1"
 
 inputs:
@@ -25,10 +26,7 @@ outputs:
     description: "Folder containing test.csv"
 
 code: ./
-environment: azureml:blueprint-example-sklearn-env:1
+environment: azureml:blueprint-env:1
 command: >
-  python data_prep.py
-  --raw_data ${{inputs.raw_data}}
-  --training_data ${{outputs.training_data}}
-  --test_data ${{outputs.test_data}}
-  --test_size ${{inputs.test_size}}
+  python data_prep.py --raw_data ${{inputs.raw_data}} --training_data ${{outputs.training_data}} --test_data ${{outputs.test_data}} --test_size ${{inputs.test_size}}
+

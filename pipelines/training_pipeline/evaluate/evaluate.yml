@@ -3,8 +3,9 @@ type: command
 name: evaluate_component
 display_name: "Evaluate Model on Test Set"
 description: >
-  Evaluate the trained model on the held-out test set. Logs accuracy,
-  F1, precision, recall, and ROC-AUC to MLflow. Writes a JSON report.
+  Evaluate the trained model on the held-out test set. Logs accuracy, F1, precision, recall, and ROC-AUC to MLflow. Writes a JSON report.
+
+
 version: "1"
 
 inputs:
@@ -21,9 +22,7 @@ outputs:
     description: "Folder with evaluation_report.json."
 
 code: ./
-environment: azureml:blueprint-example-sklearn-env:1
+environment: azureml:blueprint-env:1
 command: >
-  python evaluate.py
-  --test_data ${{inputs.test_data}}
-  --trained_model ${{inputs.trained_model}}
-  --evaluation_output ${{outputs.evaluation_output}}
+  python evaluate.py --test_data ${{inputs.test_data}} --trained_model ${{inputs.trained_model}} --evaluation_output ${{outputs.evaluation_output}}
+

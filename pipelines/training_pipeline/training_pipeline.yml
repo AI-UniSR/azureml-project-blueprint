@@ -2,9 +2,9 @@ $schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
 type: pipeline
 display_name: Blueprint Training Pipeline – Readmission Prediction
 description: >
-  End-to-end pipeline: data preparation with stratified train/test split,
-  model training with cross-validation, test-set evaluation,
-  and model registration in Azure ML Model Registry.
+  End-to-end pipeline: data preparation with stratified train/test split, model training with cross-validation, test-set evaluation, and model registration in Azure ML Model Registry.
+
+
 experiment_name: blueprint_training_pipeline
 
 settings:
@@ -15,14 +15,13 @@ settings:
 inputs:
   raw_data:
     type: uri_file
-    path: azureml:blueprint-example-clinical-readmission:1
+    path: azureml:blueprint-clinical-readmission:1
   test_size: 0.3
   cv_n_splits: 5
   model_name: "blueprint-example-readmission-model"
 
 # === Jobs (components) ===
 jobs:
-
   # Step 1: Data preparation with stratified train/test split
   data_prep_step:
     type: command
