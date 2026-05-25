@@ -26,7 +26,7 @@ def main():
     print(f"Test metrics: {json.dumps(metrics, indent=2)}")
 
     # ---- Register model ----------------------------------------------------
-    model_uri = f"file://{os.path.abspath(args.trained_model)}"
+    model_uri = f"file://{os.path.abspath(os.path.join(args.trained_model, 'mlflow_model'))}"
     registered = mlflow.register_model(
         model_uri=model_uri,
         name=args.model_name,

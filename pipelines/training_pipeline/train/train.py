@@ -67,6 +67,9 @@ def main():
     os.makedirs(args.trained_model, exist_ok=True)
     joblib.dump(pipeline, os.path.join(args.trained_model, "model.pkl"))
 
+    # Save in MLflow model format for registration
+    mlflow.sklearn.save_model(pipeline, path=os.path.join(args.trained_model, "mlflow_model"))
+
     # Save feature list for downstream components
     with open(os.path.join(args.trained_model, "feature_columns.json"), "w") as f:
         json.dump(feature_cols, f)
