@@ -1,0 +1,30 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+name: calibration_plot_r_component
+display_name: "Calibration Plot (R)"
+description: >
+  Generate a publication-quality calibration plot in R.
+  Loads the trained model, predicts on the test set, and produces
+  a decile-based calibration plot logged as MLflow artifact.
+version: "1"
+
+inputs:
+  test_data:
+    type: uri_folder
+    description: "Folder containing test.csv (output of data_prep)."
+  trained_model:
+    type: uri_folder
+    description: "Folder containing model.pkl (output of train)."
+
+outputs:
+  calibration_output:
+    type: uri_folder
+    description: "Folder with calibration_plot.png and predictions.csv."
+
+code: ./
+environment: azureml:blueprint-r-calibration-env:1
+command: >
+  python run_calibration.py
+  --test_data ${{inputs.test_data}}
+  --trained_model ${{inputs.trained_model}}
+  --calibration_output ${{outputs.calibration_output}}

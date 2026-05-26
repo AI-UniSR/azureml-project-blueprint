@@ -1,0 +1,40 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+name: heavy_train_component
+display_name: "Heavy Train — Random Forest + Optuna"
+description: >
+  Trains a Random Forest classifier with Optuna TPE hyperparameter search.
+  Logs best params, CV ROC-AUC, and the final model to MLflow.
+version: "1"
+
+inputs:
+  training_data:
+    type: uri_folder
+    description: "Folder containing train.csv (output of data_prep)."
+  n_trials:
+    type: integer
+    default: 50
+    description: "Number of Optuna trials."
+  timeout:
+    type: integer
+    default: 600
+    description: "Search timeout in seconds (0 = no limit)."
+  cv_n_splits:
+    type: integer
+    default: 5
+    description: "Number of CV folds."
+
+outputs:
+  trained_model:
+    type: uri_folder
+    description: "Folder with model.pkl, mlflow_model/, feature_columns.json, tuning_summary.json."
+
+code: ./
+environment: azureml:blueprint-example-sklearn-env:1
+command: >
+  python heavy_train.py
+  --training_data ${{inputs.training_data}}
+  --trained_model ${{outputs.trained_model}}
+  --n_trials ${{inputs.n_trials}}
+  --timeout ${{inputs.timeout}}
+  --cv_n_splits ${{inputs.cv_n_splits}}

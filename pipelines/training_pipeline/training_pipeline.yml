@@ -55,3 +55,11 @@ jobs:
       trained_model: ${{parent.jobs.train_step.outputs.trained_model}}
       evaluation_output: ${{parent.jobs.evaluate_step.outputs.evaluation_output}}
       model_name: ${{parent.inputs.model_name}}
+
+  # Step 5 (optional): Calibration plot in R
+  #calibration_plot_step:
+  #  type: command
+  #  component: ./calibration_plot_r/calibration_plot.yml
+  #  inputs:
+  #    test_data: ${{parent.jobs.data_prep_step.outputs.test_data}}
+  #    trained_model: ${{parent.jobs.train_step.outputs.trained_model}}

@@ -1,0 +1,9 @@
+$schema: https://azuremlschemas.azureedge.net/latest/environment.schema.json
+name: blueprint-r-calibration-env
+build:
+  path: .
+  dockerfile_path: Dockerfile
+description: |
+  Minimal R + Python environment for calibration plot generation.
+  Python: mlflow, pandas, scikit-learn, joblib.
+  R: ggplot2, dplyr, readr, argparse.
