@@ -84,7 +84,8 @@ The steps below describe the recommended workflow, from connecting to the VM all
 
 ---
 
-### Step 1 — Connect to the Compute Instance with VS Code
+### Step 1 (optional) — Connect to the Compute Instance with VS Code
+NB: only needed if you want to use the compute, instead for local development skip this step and just open VS Code on the local folder you want to use.
 
 1. Go to **Azure ML Studio → Compute → Compute instances**.
 2. Select your compute instance.
